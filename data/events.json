@@ -1,0 +1,14 @@
+[
+  {
+    "title": "Node.js Workshop",
+    "description": "Introduction to Node.js basics",
+    "date": "2025-04-12",
+    "organizer": "IT Academy"
+  },
+  {
+    "title": "JavaScript Conference",
+    "description": "Modern JS technologies",
+    "date": "2025-05-20",
+    "organizer": "Tech Community"
+  }
+]
