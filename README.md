@@ -1,20 +1,15 @@
-# Node Events API
+# Node Events Server
 
-Simple Express.js server for working with events.
-
-## Description
-
-This project implements a basic REST API using **Express.js**.
-The server returns a list of events and supports pagination, sorting and query validation.
+Express.js API server with MySQL database.
 
 ## Features
 
-* Express.js server
-* GET `/events` endpoint
-* Pagination using query parameters
-* Sorting by **date** or **title**
-* Request logging middleware
-* Query parameters validation
+- REST API for events
+- MySQL database integration
+- Pagination
+- Sorting by date or title
+- Cursor-based pagination
+- Database indexes for performance
 
 ## Installation
 
@@ -24,55 +19,57 @@ npm install
 
 ## Run server
 
-Development mode:
-
 npm run dev
 
-Server will start on:
+Server runs on:
 
-http://localhost:3000/events
+http://localhost:3000
 
-## API Endpoint
+## API Endpoints
 
 ### Get events
 
 GET /events
 
-Returns a list of events in JSON format.
+Query parameters:
 
-## Query Parameters
+page – page number  
+limit – number of items per page  
+sort – date or title  
+order – asc or desc  
 
-Pagination:
+Example:
 
-/events?page=1&limit=5
+/events?page=1&limit=2&sort=date&order=asc
 
-Sorting by title:
+### Cursor pagination
 
-/events?sort=title
+/events?cursor=2
 
-Sorting by date (descending):
+Returns events with id greater than cursor.
 
-/events?sort=date&order=desc
+### Get participants of event
 
-## Example Response
+GET /participants/:eventId
 
-{
-"page": 1,
-"limit": 5,
-"total": 3,
-"data": [
-{
-"id": 1,
-"title": "Node.js Workshop",
-"date": "2025-04-12",
-"organizer": "IT Academy"
-}
-]
-}
+Example:
 
-## Technologies
+/participants/1
 
-* Node.js
-* Express.js
-* JavaScript (ES Modules)
+## Database
 
+MySQL database: `eventsdb`
+
+Tables:
+
+events  
+participants  
+
+Indexes:
+
+idx_events_date  
+idx_events_title  
+
+Database schema and seed data are in:
+
+database.sql
