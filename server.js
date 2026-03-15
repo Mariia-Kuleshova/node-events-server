@@ -1,19 +1,22 @@
 import express from "express";
-import { readFile } from "fs/promises";
 import { logRequest } from "./utils/logger.js";
+import { db } from "./config/db.js";
 
 const app = express();
-
 const PORT = 3000;
 
+app.use(express.json());
 app.use(logRequest);
 
 app.get("/events", async (req, res) => {
   try {
-    const data = await readFile("./data/events.json", "utf-8");
-    let events = JSON.parse(data);
-
-    let { page = 1, limit = 5, sort, order = "asc" } = req.query;
+    let {
+      page = 1,
+      limit = 5,
+      sort = "date",
+      order = "asc",
+      cursor,
+    } = req.query;
 
     page = Number(page);
     limit = Number(limit);
@@ -25,56 +28,78 @@ app.get("/events", async (req, res) => {
       });
     }
 
-    // перевірка sort
-    if (sort && sort !== "date" && sort !== "title") {
+    if (!["date", "title"].includes(sort)) {
       return res.status(400).json({
         error: "sort може бути тільки date або title",
       });
     }
 
-    // перевірка order
-    if (order !== "asc" && order !== "desc") {
+    if (!["asc", "desc"].includes(order)) {
       return res.status(400).json({
         error: "order може бути тільки asc або desc",
       });
     }
 
-    // sorting
-    if (sort === "date") {
-      events.sort((a, b) =>
-        order === "desc"
-          ? new Date(b.date) - new Date(a.date)
-          : new Date(a.date) - new Date(b.date),
-      );
+    let query = "";
+    let params = [];
+
+    //cursor pagination
+    if (cursor) {
+      query = `
+    SELECT * FROM events
+    WHERE id > ?
+    ORDER BY id
+    LIMIT ?
+  `;
+      params = [cursor, limit];
+    } else {
+      const offset = (page - 1) * limit;
+
+      query = `
+        SELECT * FROM events
+        ORDER BY ${sort} ${order}
+        LIMIT ? OFFSET ?
+      `;
+
+      params = [limit, offset];
     }
 
-    if (sort === "title") {
-      events.sort((a, b) =>
-        order === "desc"
-          ? b.title.localeCompare(a.title)
-          : a.title.localeCompare(b.title),
-      );
-    }
+    const [events] = await db.query(query, params);
 
-    // pagination
-    const start = (page - 1) * limit;
-    const end = start + limit;
-
-    const result = events.slice(start, end);
+    const [count] = await db.query("SELECT COUNT(*) as total FROM events");
 
     res.json({
       page,
       limit,
-      total: events.length,
-      data: result,
+      total: count[0].total,
+      data: events,
     });
   } catch (error) {
+    console.error(error);
+
     res.status(500).json({
-      error: "Server error",
+      error: "Internal server error",
+    });
+  }
+});
+
+app.get("/participants/:eventId", async (req, res) => {
+  try {
+    const { eventId } = req.params;
+
+    const [participants] = await db.query(
+      "SELECT * FROM participants WHERE eventId = ?",
+      [eventId],
+    );
+
+    res.json(participants);
+  } catch (error) {
+    res.status(500).json({
+      error: "Internal server error",
     });
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}/events`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });
