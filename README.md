@@ -1,129 +1,164 @@
-# Node Events Server
+# 🎯 Event Management Full-Stack System
 
-Express.js API server with MySQL database and user authentication.
+## 📌 Description
 
----
+This project is a full-stack event management system built with Node.js, Express, GraphQL, MySQL, and Socket.io.
 
-## Features
-
-- REST API for events
-- MySQL database integration
-- Pagination (LIMIT/OFFSET)
-- Sorting by date or title
-- Cursor-based pagination
-- Database indexes for performance
-- User authentication (bcrypt + sessions)
-- Role-based access (admin / organizer)
-- Protected routes
+It provides both REST and GraphQL APIs, supports authentication, pagination, and real-time communication.
 
 ---
 
-## Installation
+## ⚙️ Technologies
 
-Install dependencies:
+* Node.js
+* Express.js
+* MySQL
+* GraphQL (Apollo Server)
+* Socket.io
+* express-session
+* bcrypt
+* dotenv
 
+---
+
+## 🚀 Getting Started
+
+### Install dependencies
+
+```bash
 npm install
+```
 
-Run server:
+### Run project
 
+```bash
 npm run dev
+```
 
 ---
 
-## Server
+## 🌐 Endpoints
 
-Server runs on:
+### REST API
 
-http://localhost:3000
-
-⚠ Note: Root route (/) is not defined. Use API endpoints like:
-
-/events  
-/login  
-/register
-
----
-
-## API Endpoints
-
-### Auth
-
-POST /register  
-POST /login
+* GET /events
+* POST /events
+* PUT /events/:id
+* DELETE /events/:id
+* POST /participants
+* GET /participants/:eventId
 
 ---
 
-### Events
+### GraphQL
 
-GET /events
+```bash
+http://localhost:3000/graphql
+```
 
-Query parameters:
+Example query:
 
-- page – page number
-- limit – number of items
-- sort – date or title
-- order – asc or desc
-
-Example:
-
-/events?page=1&limit=2&sort=date&order=asc
-
----
-
-### Cursor pagination
-
-/events?cursor=2
-
-Returns events with id greater than cursor.
+```graphql
+query {
+  getEvents {
+    id
+    title
+    participants {
+      name
+      email
+    }
+  }
+}
+```
 
 ---
 
-### Participants (Protected)
+## 🔐 Authentication
 
-GET /participants/:eventId
+* Registration: POST /register
+* Login: POST /login
 
-⚠ Requires authentication
+Uses:
 
----
-
-### Admin only
-
-DELETE /events/:id
-
-⚠ Only users with role "admin" can access
+* express-session
+* bcrypt password hashing
 
 ---
 
-## Database
+## 📊 Pagination
 
-MySQL database: eventsdb
+### Offset
 
-Tables:
+```bash
+/events?page=1&limit=5
+```
 
-- events
-- participants
-- users
+### Cursor-based (Advanced)
 
-Indexes:
+```bash
+/events?cursor=1
+```
 
-- idx_events_date
-- idx_events_title
+Response:
 
-Database schema and seed data:
-
-database.sql
-
----
-
-## Security
-
-- Password hashing using bcrypt
-- Session-based authentication
-- Middleware for route protection
-- Role-based authorization
+```json
+{
+  "data": [...],
+  "nextCursor": 5
+}
+```
 
 ---
 
-## Author
+## 💬 Real-time Chat
 
-Student project (Node.js + Express + MySQL)
+Implemented with Socket.io.
+
+Features:
+
+* real-time messaging
+* no page reload
+* WebSocket connection
+
+---
+
+## 🧠 Advanced Features
+
+✔ Hybrid API (REST + GraphQL)
+✔ Nested GraphQL queries
+✔ Session-based authentication
+✔ Role-based access control
+✔ Cursor-based pagination
+✔ Real-time chat (Socket.io)
+✔ Environment variables support
+
+---
+
+## ☁️ Deployment
+
+Project is ready for deployment:
+
+* Frontend → Vercel
+* Backend → Render / Railway
+* Database → Railway / MySQL
+
+---
+
+## 📁 Structure
+
+```
+config/
+utils/
+graphql.js
+server.js
+.env
+README.md
+```
+
+---
+
+## 🏁 Conclusion
+
+This project demonstrates a complete event management system with modern backend technologies. It includes both basic functionality and advanced features such as GraphQL, real-time communication, and cursor-based pagination.
+
+---
